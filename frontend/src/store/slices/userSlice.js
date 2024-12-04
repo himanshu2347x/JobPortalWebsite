@@ -3,195 +3,232 @@ import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
 
+// Set FRONTEND_URL dynamically from environment variables
 const FRONTEND_URL =
-  process.env.FRONTEND_URL || "https://nichenest-8hga.onrender.com";
+  process.env.FRONTEND_URL || "https://nichenest-8hga.onrender.com"; // default URL for production
 
-// Async actions using createAsyncThunk
-export const fetchJobs = createAsyncThunk(
-  "jobs/fetchJobs",
-  async ({ city, niche, searchKeyword = "" }, { rejectWithValue }) => {
-    try {
-      let link = `${FRONTEND_URL}/api/v1/job/getall?`; // Updated to use BACKEND_URL
-      let queryParams = [];
-      if (searchKeyword) queryParams.push(`searchKeyword=${searchKeyword}`);
-      if (city) queryParams.push(`city=${city}`);
-      if (niche) queryParams.push(`niche=${niche}`);
-      link += queryParams.join("&");
-
-      const response = await axios.get(link, { withCredentials: true });
-      return response.data.jobs;
-    } catch (error) {
-      return rejectWithValue(error.response.data.message);
-    }
-  }
-);
-
-export const fetchSingleJob = createAsyncThunk(
-  "jobs/fetchSingleJob",
-  async (jobId, { rejectWithValue }) => {
-    try {
-      const response = await axios.get(
-        `${FRONTEND_URL}/api/v1/job/get/${jobId}`,
-        {
-          // Updated API endpoint
-          withCredentials: true,
-        }
-      );
-      return response.data.job;
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message);
-    }
-  }
-);
-
-export const postJob = createAsyncThunk(
-  "jobs/postJob",
+// Async Thunks
+export const register = createAsyncThunk(
+  "user/register",
   async (data, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${FRONTEND_URL}/api/v1/job/post`, // Updated API endpoint
+        `${FRONTEND_URL}/api/v1/user/register`, // Dynamically set URL
+        data,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Registration failed"
+      );
+    }
+  }
+);
+
+export const updatePassword = createAsyncThunk(
+  "user/updatePassword",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `${FRONTEND_URL}/api/v1/user/update/password`, // Dynamically set URL
         data,
         {
           withCredentials: true,
           headers: { "Content-Type": "application/json" },
         }
       );
-      return response.data.message;
+      return response.data; // Ensure the response data matches the structure
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Password update failed"
+      );
     }
   }
 );
 
-export const getMyJobs = createAsyncThunk(
-  "jobs/getMyJobs",
+export const login = createAsyncThunk(
+  "user/login",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${FRONTEND_URL}/api/v1/user/login`, // Dynamically set URL
+        data,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Login failed");
+    }
+  }
+);
+
+export const getUser = createAsyncThunk(
+  "user/getUser",
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${FRONTEND_URL}/api/v1/job/getmyjobs`, // Updated API endpoint
+        `${FRONTEND_URL}/api/v1/user/getuser`, // Dynamically set URL
         { withCredentials: true }
       );
-      return response.data.myJobs;
+      return response.data.user;
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch user data"
+      );
     }
   }
 );
 
-export const deleteJob = createAsyncThunk(
-  "jobs/deleteJob",
-  async (id, { rejectWithValue }) => {
+export const logout = createAsyncThunk(
+  "user/logout",
+  async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.delete(
-        `${FRONTEND_URL}/api/v1/job/delete/${id}`, // Updated API endpoint
-        { withCredentials: true }
-      );
-      return response.data.message;
+      await axios.get(`${FRONTEND_URL}/api/v1/user/logout`, {
+        // Dynamically set URL
+        withCredentials: true,
+      });
+      return "Successfully logged out";
     } catch (error) {
-      return rejectWithValue(error.response.data.message);
+      return rejectWithValue(error.response?.data?.message || "Logout failed");
     }
   }
 );
 
-// Slice
-const jobSlice = createSlice({
-  name: "jobs",
+export const updateProfile = createAsyncThunk(
+  "user/updateProfile",
+  async (data, { rejectWithValue }) => {
+    try {
+      const response = await axios.put(
+        `${FRONTEND_URL}/api/v1/user/update/profile`, // Dynamically set URL
+        data,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Profile update failed"
+      );
+    }
+  }
+);
+
+const userSlice = createSlice({
+  name: "user",
   initialState: {
-    jobs: [],
     loading: false,
+    isAuthenticated: false,
+    user: {},
     error: null,
     message: null,
-    singleJob: {},
-    myJobs: [],
+    isUpdated: false,
   },
   reducers: {
     clearAllErrors: (state) => {
       state.error = null;
       state.message = null;
     },
-    resetJobSlice: (state) => {
-      state.loading = false;
-      state.message = null;
-      state.myJobs = [];
-      state.singleJob = {};
+    resetUpdateState: (state) => {
+      state.isUpdated = false;
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      // fetchJobs
-      .addCase(fetchJobs.pending, (state) => {
+      // Register
+      .addCase(register.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(fetchJobs.fulfilled, (state, action) => {
+      .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
-        state.jobs = action.payload;
-        state.error = null;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.message = action.payload.message;
       })
-      .addCase(fetchJobs.rejected, (state, action) => {
+      .addCase(register.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      // fetchSingleJob
-      .addCase(fetchSingleJob.pending, (state) => {
+      // Login
+      .addCase(login.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(fetchSingleJob.fulfilled, (state, action) => {
+      .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
-        state.singleJob = action.payload;
-        state.error = null;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.message = action.payload.message;
       })
-      .addCase(fetchSingleJob.rejected, (state, action) => {
+      .addCase(login.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      // postJob
-      .addCase(postJob.pending, (state) => {
+      // Get User
+      .addCase(getUser.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(postJob.fulfilled, (state, action) => {
+      .addCase(getUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.message = action.payload;
-        state.error = null;
+        state.isAuthenticated = true;
+        state.user = action.payload;
       })
-      .addCase(postJob.rejected, (state, action) => {
+      .addCase(getUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      // getMyJobs
-      .addCase(getMyJobs.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(getMyJobs.fulfilled, (state, action) => {
+      // Logout
+      .addCase(logout.fulfilled, (state) => {
         state.loading = false;
-        state.myJobs = action.payload;
-        state.error = null;
+        state.isAuthenticated = false;
+        state.user = {};
+        state.message = "Successfully logged out";
       })
-      .addCase(getMyJobs.rejected, (state, action) => {
+      .addCase(logout.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      // deleteJob
-      .addCase(deleteJob.pending, (state) => {
+      // Update Profile
+      .addCase(updateProfile.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(deleteJob.fulfilled, (state, action) => {
+      .addCase(updateProfile.fulfilled, (state, action) => {
         state.loading = false;
-        state.message = action.payload;
-        state.error = null;
+        state.user = action.payload.user;
+        state.isUpdated = true;
+        state.message =
+          action.payload.message || "Profile updated successfully";
       })
-      .addCase(deleteJob.rejected, (state, action) => {
+      .addCase(updateProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      // Update Password
+      .addCase(updatePassword.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updatePassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.isUpdated = true;
+        state.message =
+          action.payload.message || "Password Updated Successfully";
+      })
+      .addCase(updatePassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.isUpdated = false;
       });
   },
 });
 
-export const { clearAllErrors, resetJobSlice } = jobSlice.actions;
-
-export default jobSlice.reducer;
+export const { clearAllErrors, resetUpdateState } = userSlice.actions;
+export default userSlice.reducer;

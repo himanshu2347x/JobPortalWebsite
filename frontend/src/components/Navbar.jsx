@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { GiHamburgerMenu } from "react-icons/gi";
-import { logout } from "../store/slices/userSlice.js";
+import { logout} from "../store/slices/userSlice.js";
 import { toast } from "react-toastify";
 
 const Navbar = () => {

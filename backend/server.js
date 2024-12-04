@@ -48,7 +48,7 @@ app.use(
 // CORS setup
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL],
+    origin:"https://nichenest-8hga.onrender.com",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })

@@ -1,11 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import dotenv from "dotenv";
-dotenv.config();
 
-// Set FRONTEND_URL dynamically from environment variables
-const FRONTEND_URL =
-  process.env.FRONTEND_URL || "https://nichenest-8hga.onrender.com"; // default URL for production
 
 // Async Thunks
 export const register = createAsyncThunk(
@@ -13,7 +8,7 @@ export const register = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${FRONTEND_URL}/api/v1/user/register`, // Dynamically set URL
+        `https://nichenest-8hga.onrender.com/api/v1/user/register`, // Dynamically set URL
         data,
         {
           withCredentials: true,
@@ -34,7 +29,7 @@ export const updatePassword = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `${FRONTEND_URL}/api/v1/user/update/password`, // Dynamically set URL
+        `https://nichenest-8hga.onrender.com/api/v1/user/update/password`, // Dynamically set URL
         data,
         {
           withCredentials: true,
@@ -55,7 +50,7 @@ export const login = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${FRONTEND_URL}/api/v1/user/login`, // Dynamically set URL
+        `https://nichenest-8hga.onrender.com/api/v1/user/login`, // Dynamically set URL
         data,
         {
           withCredentials: true,
@@ -74,7 +69,7 @@ export const getUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${FRONTEND_URL}/api/v1/user/getuser`, // Dynamically set URL
+        `https://nichenest-8hga.onrender.com/api/v1/user/getuser`, // Dynamically set URL
         { withCredentials: true }
       );
       return response.data.user;
@@ -90,10 +85,13 @@ export const logout = createAsyncThunk(
   "user/logout",
   async (_, { rejectWithValue }) => {
     try {
-      await axios.get(`${FRONTEND_URL}/api/v1/user/logout`, {
-        // Dynamically set URL
-        withCredentials: true,
-      });
+      await axios.get(
+        `https://nichenest-8hga.onrender.com/api/v1/user/logout`,
+        {
+          // Dynamically set URL
+          withCredentials: true,
+        }
+      );
       return "Successfully logged out";
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Logout failed");
@@ -106,7 +104,7 @@ export const updateProfile = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await axios.put(
-        `${FRONTEND_URL}/api/v1/user/update/profile`, // Dynamically set URL
+        `https://nichenest-8hga.onrender.com/api/v1/user/update/profile`, // Dynamically set URL
         data,
         {
           withCredentials: true,

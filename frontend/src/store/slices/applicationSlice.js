@@ -1,20 +1,18 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import dotenv from "dotenv";
-dotenv.config();
 
-const FRONTEND_URL =
-  process.env.FRONTEND_URL || "https://nichenest-8hga.onrender.com"; // For frontend
+// Async actions using createAsyncThunk
 export const fetchEmployerApplications = createAsyncThunk(
   "applications/fetchEmployerApplications",
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${FRONTEND_URL}/api/v1/application/employer/getall`, // Updated to use BACKEND_URL
+        "https://nichenest-8hga.onrender.com/api/v1/application/employer/getall",
         { withCredentials: true }
       );
       return response.data.applications;
     } catch (error) {
+      // Improved error handling: check if error.response exists
       return rejectWithValue(
         error.response ? error.response.data.message : error.message
       );
@@ -27,11 +25,12 @@ export const fetchJobSeekerApplications = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `${FRONTEND_URL}/api/v1/application/jobseeker/getall`, // Updated to use BACKEND_URL
+        "https://nichenest-8hga.onrender.com/api/v1/application/jobseeker/getall",
         { withCredentials: true }
       );
       return response.data.applications;
     } catch (error) {
+      // Improved error handling: check if error.response exists
       return rejectWithValue(
         error.response ? error.response.data.message : error.message
       );
@@ -44,15 +43,16 @@ export const postApplication = createAsyncThunk(
   async ({ formData, jobId }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `${FRONTEND_URL}/api/v1/application/post/${jobId}`, // Updated to use BACKEND_URL
+        `https://nichenest-8hga.onrender.com/api/v1/application/post/${jobId}`,
         formData,
         {
           withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: { "Content-Type": "multipart/form-data" }, // Form data header
         }
       );
-      return response.data.message;
+      return response.data.message; // Successful response
     } catch (error) {
+      // Improved error handling: check if error.response exists
       return rejectWithValue(
         error.response ? error.response.data.message : error.message
       );
@@ -65,11 +65,12 @@ export const deleteApplication = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `${FRONTEND_URL}/api/v1/application/delete/${id}`, // Updated to use BACKEND_URL
+        `https://nichenest-8hga.onrender.com/api/v1/application/delete/${id}`,
         { withCredentials: true }
       );
       return response.data.message;
     } catch (error) {
+     
       return rejectWithValue(
         error.response ? error.response.data.message : error.message
       );

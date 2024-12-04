@@ -1,18 +1,20 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import dotenv from "dotenv";
+dotenv.config();
 
-// Async actions using createAsyncThunk
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "https://nichenest-8hga.onrender.com"; // For frontend
 export const fetchEmployerApplications = createAsyncThunk(
   "applications/fetchEmployerApplications",
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/api/v1/application/employer/getall",
+        `${FRONTEND_URL}/api/v1/application/employer/getall`, // Updated to use BACKEND_URL
         { withCredentials: true }
       );
       return response.data.applications;
     } catch (error) {
-      // Improved error handling: check if error.response exists
       return rejectWithValue(
         error.response ? error.response.data.message : error.message
       );
@@ -25,10 +27,9 @@ export const fetchJobSeekerApplications = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        "http://localhost:4000/api/v1/application/jobseeker/getall",
+        `${FRONTEND_URL}/api/v1/application/jobseeker/getall`, // Updated to use BACKEND_URL
         { withCredentials: true }
       );
-
       return response.data.applications;
     } catch (error) {
       return rejectWithValue(
@@ -43,16 +44,15 @@ export const postApplication = createAsyncThunk(
   async ({ formData, jobId }, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `http://localhost:4000/api/v1/application/post/${jobId}`,
+        `${FRONTEND_URL}/api/v1/application/post/${jobId}`, // Updated to use BACKEND_URL
         formData,
         {
           withCredentials: true,
-          headers: { "Content-Type": "multipart/form-data" }, // Form data header
+          headers: { "Content-Type": "multipart/form-data" },
         }
       );
-      return response.data.message; // Successful response
+      return response.data.message;
     } catch (error) {
-      // Improved error handling: check if error.response exists
       return rejectWithValue(
         error.response ? error.response.data.message : error.message
       );
@@ -65,12 +65,11 @@ export const deleteApplication = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `http://localhost:4000/api/v1/application/delete/${id}`,
+        `${FRONTEND_URL}/api/v1/application/delete/${id}`, // Updated to use BACKEND_URL
         { withCredentials: true }
       );
       return response.data.message;
     } catch (error) {
-     
       return rejectWithValue(
         error.response ? error.response.data.message : error.message
       );

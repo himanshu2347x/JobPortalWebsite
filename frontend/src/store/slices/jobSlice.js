@@ -1,12 +1,17 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import dotenv from "dotenv";
+dotenv.config();
+
+const FRONTEND_URL =
+  process.env.FRONTEND_URL || "https://nichenest-8hga.onrender.com"; // For frontend
 
 // Async actions using createAsyncThunk
 export const fetchJobs = createAsyncThunk(
   "jobs/fetchJobs",
   async ({ city, niche, searchKeyword = "" }, { rejectWithValue }) => {
     try {
-      let link = "http://localhost:4000/api/v1/job/getall?";
+      let link = `${FRONTEND_URL}/api/v1/job/getall?`; // Updated to use BACKEND_URL
       let queryParams = [];
       if (searchKeyword) queryParams.push(`searchKeyword=${searchKeyword}`);
       if (city) queryParams.push(`city=${city}`);
@@ -26,7 +31,7 @@ export const fetchSingleJob = createAsyncThunk(
   async (jobId, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/v1/job/get/${jobId}`,
+        `${FRONTEND_URL}/api/v1/job/get/${jobId}`, // Updated API endpoint
         { withCredentials: true }
       );
       return response.data.job;
@@ -41,7 +46,7 @@ export const postJob = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const response = await axios.post(
-        `http://localhost:4000/api/v1/job/post`,
+        `${FRONTEND_URL}/api/v1/job/post`, // Updated API endpoint
         data,
         {
           withCredentials: true,
@@ -60,7 +65,7 @@ export const getMyJobs = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await axios.get(
-        `http://localhost:4000/api/v1/job/getmyjobs`,
+        `${FRONTEND_URL}/api/v1/job/getmyjobs`, // Updated API endpoint
         { withCredentials: true }
       );
       return response.data.myJobs;
@@ -75,7 +80,7 @@ export const deleteJob = createAsyncThunk(
   async (id, { rejectWithValue }) => {
     try {
       const response = await axios.delete(
-        `http://localhost:4000/api/v1/job/delete/${id}`,
+        `${FRONTEND_URL}/api/v1/job/delete/${id}`, // Updated API endpoint
         { withCredentials: true }
       );
       return response.data.message;
